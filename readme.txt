@@ -18,4 +18,5 @@
 9 уровень: При нажатии на кнопку выводится текст как по ТЗ и ссылка на ВК компании.
 
 Презентация:
-Загружена на GitHub
+
+https://docs.google.com/presentation/d/1dWBUaBO18WaLQ613KvgNQKjrD7HVod25/edit?usp=sharing&ouid=107907022315999602763&rtpof=true&sd=true
