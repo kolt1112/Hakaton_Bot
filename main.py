@@ -7,11 +7,9 @@ bot = telebot.TeleBot(token)
 
 
 @bot.message_handler(commands=['start'])
+def send_welcome(message):  #Стартовая функция
 
-def send_welcome(message):
 
-
-    # Создаем клавиатуру
     keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
 
     button1 = telebot.types.InlineKeyboardButton("🐤Когда работает 'Птичка'?")
@@ -22,7 +20,6 @@ def send_welcome(message):
     button6 = telebot.types.InlineKeyboardButton("👔Мероприятия")
     button7 = telebot.types.KeyboardButton("🤔Не нашлось ответа?")
 
-    # Добавляем кнопки на клавиатуру
     keyboard.add(button1)
 
     keyboard.row(button3, button4, button5)
@@ -34,10 +31,10 @@ def send_welcome(message):
 
     bot.send_photo(message.chat.id, "https://cdn.discordapp.com/attachments/1038793739818238063/1228279150780088380/image.png?ex=662b7719&is=66190219&hm=6706214f9ffd7b7f1cd10c4cdf8ec5a9f76a1a3f7ca18215d7886de6bc31db9e&", caption="Сделайте мир чище вместе с «Птичкой»! Присоединяйтесь к нам и станьте героями экологии уже сегодня!", reply_markup=keyboard)
     bot.send_message(message.chat.id, "Выберите действие:")
-#Основные функции
+
 
 @bot.message_handler(content_types=['text'])
-def get_text_messages(message):
+def get_text_messages(message):     #Основная функция которая вызовает другие функции при нажатии кнопок
     if message.text == "🐤Когда работает 'Птичка'?":
         get_text_message_street(message)
 
@@ -68,7 +65,7 @@ def get_text_messages(message):
         subfunctions(message)
 
 
-def subfunctions(message):
+def subfunctions(message):   #Функция для второстепенных кнопок
     user_id = message.from_user.id
 
     markup = telebot.types.InlineKeyboardMarkup()
@@ -291,11 +288,9 @@ def subfunctions(message):
 
                                   'вместе с «Птичкой»!', reply_markup=markup)
 
-#Улицы
 
-
-
-def get_text_message_street(message):
+def get_text_message_street(message):   #Функция для графика работы (Кнопка(и ниже я буду писать так же комментарии к
+                                        # таким функция))
     user_id = message.from_user.id
 
     if message.text == "🐤Когда работает 'Птичка'?":
@@ -308,9 +303,7 @@ def get_text_message_street(message):
         bot.send_message(user_id, '❓ Задайте интересующий вопрос', reply_markup=markup)  # ответ бота
 
 
-#Вознаграждения
-
-def get_text_message_money(message):
+def get_text_message_money(message):         #Функция для вознаграждения
     user_id = message.from_user.id
 
     if message.text == "🤑Вознаграждение за вторсырье?":
@@ -322,9 +315,7 @@ https://vk.com/ptichka_punkt
 
 
 
-#Мероприятия
-
-def get_text_message_event(message):
+def get_text_message_event(message):        #Функция для мероприятий
     user_id = message.from_user.id
 
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -343,9 +334,7 @@ def get_text_message_event(message):
     bot.send_message(user_id, "Выберите мероприятие", reply_markup=markup)
 
 
-#Не нашлось ответа?
-
-def get_text_message_ans(message):
+def get_text_message_ans(message):   #Функция если клиент не нашёл ответ в боте
     user_id = message.from_user.id
     if message.text == "🤔Не нашлось ответа?":
         bot.send_message(user_id, """Способы связи
@@ -354,22 +343,26 @@ def get_text_message_ans(message):
 Группа Вконтакте: https://vk.com/ptichka_punkt""")
 
 
-
-#Сдача вторсырья и как правильно сдавать вторсырьё
-
-
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     global current_index, current_photo_index_deal
 
+    # Проверяем, была ли нажата кнопка "Следующее фото" для сценария "Правильная сдача"
     if call.data == 'next_photo_r':
+        # Обновляем индекс текущей фотографии для сценария "Правильная сдача"
         current_index = (current_index + 1) % len(custom_photos)
+        # Отправляем следующую фотографию для сценария "Правильная сдача"
         bot.send_photo(call.message.chat.id, custom_photos[current_index], reply_markup=create_keyboard())
+
+    # Проверяем, была ли нажата кнопка "Следующее фото" для сценария "Сдача вторсырья"
     elif call.data == 'next_photo':
+        # Обновляем индекс текущей фотографии для сценария "Сдача вторсырья"
         current_photo_index_deal = (current_photo_index_deal + 1) % len(photos_deal)
+        # Отправляем следующую фотографию для сценария "Сдача вторсырья"
         bot.send_photo(call.message.chat.id, photos_deal[current_photo_index_deal], reply_markup=create_keyboard_deal())
 
 
+# Функция для создания клавиатуры для сценария "Правильная сдача"
 def create_keyboard():
     markup = telebot.types.InlineKeyboardMarkup()
     btn1 = telebot.types.InlineKeyboardButton('Следующее фото', callback_data='next_photo_r')
@@ -377,25 +370,23 @@ def create_keyboard():
     return markup
 
 
+# Функция для создания клавиатуры для сценария "Сдача вторсырья"
 def create_keyboard_deal():
     markup = telebot.types.InlineKeyboardMarkup()
     btn1 = telebot.types.InlineKeyboardButton('Следующее фото', callback_data='next_photo')
     markup.add(btn1)
     return markup
 
-def get_photo_message_right(message):
+def get_photo_message_right(message):   # Функция для отправки фотографии для сценария "Правильная сдача"
     bot.send_photo(message.chat.id, custom_photos[current_index], reply_markup=create_keyboard())
 
 
-def get_photo_message_deal(message):
-    # Отправляем первое фото с клавиатурой
+def get_photo_message_deal(message):    # Функция для отправки фотографии для сценария "Сдача вторсырья"
     bot.send_photo(message.chat.id, photos_deal[current_photo_index_deal], reply_markup=create_keyboard_deal())
 
 
-#Сотрудничество
 
-
-def get_text_message_contact(message):
+def get_text_message_contact(message):      #Функция, если клиент хочет сотрудничать
     user_id = message.from_user.id
 
     if message.text == "🫱🏿‍🫲🏻Хотите посотрудничать?":
@@ -414,8 +405,9 @@ photos_deal = [
     'https://sun9-26.userapi.com/impg/b7HESCPkkXsL9H7UhBUyLjlt7p5RMb6akEUjnw/czYgU44a7AI.jpg?size=604x604&quality=96&sign=847762d29ae407ec27a4249f4487f2e3&c_uniq_tag=n89Uy24_mpFX-VQ20hH0wO_2IUbKWwOPp_MPChVgFtc&type=album',
     'https://sun3-23.userapi.com/impg/_3yoae6qHi5fgQTAf_z-1iEDtKFaMFI_L-DEIw/Ycn5wQrAZmk.jpg?size=604x604&quality=96&sign=32010d75be659958c6724dea8303894c&c_uniq_tag=z6HnO9USRCWHey9IEHKQ5IVjLexnLRPcQBesinlE3B0&type=album',
     'https://sun3-20.userapi.com/impg/w5P7I88OKVyDyN0RMrHZRkwib8jm3EUqUxxkBg/xCZwK5K80Xg.jpg?size=604x604&quality=95&sign=80170a57d81253a620aee59a91e5b209&c_uniq_tag=6eiHG4q7ULkM2Qj6u2M7YSTNvW25ywg9hBDz16Syi2g&type=album'
-]
+]       #Массив для фото, которые используется "Сдача вторсырья"
 
+# Индекс текущей фотографии для сценария "Сдача вторсырья"
 current_photo_index_deal = 0
 
 
@@ -427,9 +419,9 @@ custom_photos = [
     'https://sun9-48.userapi.com/impg/BUaJmeLxhUx1w2AVnE5Z9X5B5_NGz_63OiAe8w/QbvjOei_bpQ.jpg?size=807x807&quality=95&sign=364bef4402e4833896a38ba695cf60c8&c_uniq_tag=ZSvAHFw0KIYVakFL0M2B1THtQ0XWYCUNJmjLtjwphy4&type=album',
     'https://sun9-1.userapi.com/impg/sfoLsYjVyr9anF8fxm_hAfra_B-RQI5gSbxXtQ/zyBmJzKT-Eg.jpg?size=807x807&quality=95&sign=9b2f815709ace4a03578dbc5f9e3522f&c_uniq_tag=FEb-Y2NjbOUUwXMJqKFH2HkpNBO5YO1pThoWs9-zYoI&type=album',
     'https://sun9-24.userapi.com/impg/jakud3jTaWNqgIMHyJ2_aDonFZ0BLFMguLr-7Q/ZYKxaUpEv10.jpg?size=807x807&quality=95&sign=d383bec64cff68c61ead0930fe10247b&c_uniq_tag=4Gk-2Mwp6cEjh11hiyTrJIld4Yz01cFKRM543peYFDY&type=album'
+]       #Массив для фото, которые используется "Правильная сдача"
 
-]
-
+# Индекс текущей фотографии для сценария "Правильная сдача"
 current_index = 0
 
 
